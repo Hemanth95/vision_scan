@@ -1,44 +1,56 @@
 import cv2
 import torch
+import time
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
+from pyzbar.pyzbar import decode
 
-image_code = 'test2.jpg'
+# image_code = 'sample6.jpg'
 
-def predict_boxes():
+def predict_boxes(image_code):
     model = YOLO('runs/detect/train5/weights/best.pt')
     boxes = model(image_code)
     return boxes
 
-def plot_image(results):
+def is_barcode_detected(results):
     yolov8_output_np = results.cpu().numpy()
     boxes = yolov8_output_np[:, :4]
-    confidences = yolov8_output_np[:, 4]
+    if len(boxes) > 0:
+        return True, boxes
+    return False, None
 
-    confidence_threshold = 0.5
-    filtered_indices = confidences >= confidence_threshold
-    filtered_boxes = boxes[filtered_indices]
+def read_barcode(image):
 
-    # Load the image
-    image = cv2.imread(image_code)  # Replace with your image path
-    image_height, image_width, _ = image.shape
-    # Draw bounding boxes on the image
-    for box in filtered_boxes:
-        x1, y1, x2, y2 = box
-        color = (0, 255, 0)  # Green color for the bounding box (you can change this)
-        thickness = 2
-        cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    decoded_text = decode(gray_image)
+    if decoded_text:
+        barcode_data = decoded_text[0].data.decode("utf-8")
+        return barcode_data
 
-    # Display the image with bounding boxes using OpenCV
-    cv2.imshow('Image with Bounding Boxes', image)
-    cv2.waitKey(0)  # Wait for a key press to close the window
+def crop_image(image, box):
+    x1, y1, x2, y2 = box
+    cropped_image = image[int(y1):int(y2), int(x1):int(x2)]
+    return cropped_image
+
+def read_barcodes():
+    cap = cv2.VideoCapture(0)
+    while True:
+        _, frame = cap.read()
+        results = predict_boxes(frame)
+        # plot_image(results[0].boxes.data, frame)
+        barcode_detected, boxes = is_barcode_detected(results[0].boxes.data)
+        if barcode_detected:
+            for box in boxes:
+                cropped_image = crop_image(frame, box)
+                decoded_text = read_barcode(cropped_image)
+                if decoded_text:
+                    print("Decoded text", decoded_text)
+                    cv2.imshow('Image with Bounding Boxes', cropped_image)
+        time.sleep(0.1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
     cv2.destroyAllWindows()
 
-
 if __name__=="__main__":
-    results = predict_boxes()
-    print(results[0].boxes.data)
-
-    plot_image(results[0].boxes.data)
-    
-    
+    read_barcodes()
