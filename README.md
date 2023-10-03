@@ -14,8 +14,7 @@ Features:
 
 Project Structure:
 
-    /yolov8_barcode: Contains scripts and modules specific to barcode scanning using YOLOv8.
-    /data: Includes sample images and videos for testing barcode detection.
+    /src: Contains scripts and modules specific to barcode scanning using YOLOv8.
 
 Getting Started:
 
@@ -26,17 +25,19 @@ Getting Started:
 git clone https://github.com/Hemanth95/vision_scan.git
 cd vision_scan
 
-Navigate to the yolov8_barcode directory:
+Navigate to the src directory:
 
 bash
 
-cd yolov8_barcode
+cd src
 
-Run the barcode scanning script on sample images:
+Train the model using train.py:
 
-bash
+    python train.py
 
-    python scan_barcodes.py
+Test the model using test.py:
+
+    python test.py
 
 Contributing:
 Contributions are welcome! If you find a bug or have an enhancement in mind, please open an issue or submit a pull request.
