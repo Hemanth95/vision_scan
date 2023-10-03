@@ -17,19 +17,17 @@ Project Structure:
     /src: Contains scripts and modules specific to barcode scanning using YOLOv8.
 
 Getting Started:
+Clone the repository:
 
-    Clone the repository:
 
-    bash
-
-git clone https://github.com/Hemanth95/vision_scan.git
-cd vision_scan
+    git clone https://github.com/Hemanth95/vision_scan.git
+    cd vision_scan
 
 Navigate to the src directory:
 
 bash
 
-cd src
+    cd src
 
 Train the model using train.py:
 
